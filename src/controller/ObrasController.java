@@ -6,6 +6,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
+
+import java.util.List;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -25,14 +28,11 @@ public class ObrasController {
         nombreColumna.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         estadoColumna.setCellValueFactory(new PropertyValueFactory<>("estado"));
 
-        ObservableList<Obra> obras = FXCollections.observableArrayList(
-            new Obra(101, "Reforma Calle 5", "En curso"),
-            new Obra(102, "Obra Edificio Sur", "Finalizada"),
-            new Obra(103, "Instalación eléctrica nave", "Pendiente")
-        );
-
+        List<Obra> lista = util.FirebaseService.leerObras();
+        ObservableList<Obra> obras = FXCollections.observableArrayList(lista);
         tablaObras.setItems(obras);
     }
+
     
     @FXML
     private void abrirFormularioObra() {

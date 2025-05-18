@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import model.Empleado;
+import model.Obra;
 
 public class FirebaseService {
 
@@ -90,5 +91,34 @@ public class FirebaseService {
         }
         return false;
     }
+    public static List<Obra> leerObras() {
+        List<Obra> obras = new ArrayList<>();
+
+        try {
+            URL url = new URL(BASE_URL + "/obras.json");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            BufferedReader reader = new BufferedReader(
+                new InputStreamReader(conn.getInputStream())
+            );
+
+            JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
+            reader.close();
+
+            for (String key : data.keySet()) {
+                JsonObject obj = data.getAsJsonObject(key);
+                String nombre = obj.get("nombre").getAsString();
+                String estado = obj.get("estado").getAsString();
+                obras.add(new Obra(0, nombre, estado)); // ID 0 por ahora
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return obras;
+    }
+
 }
 

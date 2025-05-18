@@ -9,8 +9,13 @@
 	stylesheets="@/view/style.css" spacing="10" alignment="CENTER"
 	style="-fx-padding: 20;">
 
-	<Label text="Gestión de Obras" style="-fx-font-size: 16px;" />
-	<Button text="Añadir Obra" onAction="#abrirFormularioObra"/>
+	<Label text="Gestión de Obras"
+       style="-fx-font-size: 24px;
+              -fx-font-weight: bold;
+              -fx-text-fill: linear-gradient(to right, #2b6cb0, #00bfff);
+              -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 6, 0.3, 0, 2);" />
+	
+	
 	
 	<TableView fx:id="tablaObras" prefHeight="200"
 		prefWidth="300">
@@ -20,5 +25,5 @@
 			<TableColumn fx:id="estadoColumna" text="Estado" />
 		</columns>
 	</TableView>
-
+<Button text="Añadir Obra" onAction="#abrirFormularioObra"/>
 </VBox>
