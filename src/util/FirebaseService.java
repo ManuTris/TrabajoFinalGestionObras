@@ -66,5 +66,29 @@ public class FirebaseService {
 
         return empleados;
     }
+    public static boolean verificarCredenciales(String usuario, String contraseña) {
+        try {
+            URL url = new URL(BASE_URL + "/usuarios.json");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
+            reader.close();
+
+            for (String key : data.keySet()) {
+                JsonObject obj = data.getAsJsonObject(key);
+                String u = obj.get("usuario").getAsString();
+                String p = obj.get("contraseña").getAsString();
+
+                if (u.equals(usuario) && p.equals(contraseña)) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
 

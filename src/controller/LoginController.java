@@ -1,14 +1,16 @@
+
 package controller;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.stage.Stage;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.fxml.FXMLLoader;
+import util.FirebaseService;
 
 public class LoginController {
 
@@ -20,22 +22,29 @@ public class LoginController {
         String user = usernameField.getText();
         String pass = passwordField.getText();
 
-        if ("admin".equals(user) && "1234".equals(pass)) {
+        if (util.FirebaseService.verificarCredenciales(user, pass)) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
                 Parent root = loader.load();
-
                 Stage stage = (Stage) usernameField.getScene().getWindow();
-                stage.setScene(new Scene(root));
+                Scene scene = new Scene(root);
+
+                stage.setScene(scene);
                 stage.setTitle("Panel Principal");
+
+           
+                stage.setFullScreen(true);
+                stage.setFullScreenExitHint("");
+
+                stage.show();
             } catch (Exception e) {
                 e.printStackTrace();
-                showAlert("Error", "No se pudo cargar la vista principal.");
             }
         } else {
             showAlert("Error", "Credenciales incorrectas.");
         }
     }
+
 
     private void showAlert(String title, String message) {
         Alert alert = new Alert(AlertType.INFORMATION);

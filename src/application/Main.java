@@ -12,11 +12,18 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/view/LoginView.fxml"));
+            Scene scene = new Scene(root); // ya no necesitas tamaño fijo
+
             primaryStage.setTitle("Gestión de Obras - Login");
-            primaryStage.setScene(new Scene(root, 400, 250));
+            primaryStage.setScene(scene);
+
+            // 👇 Modo pantalla completa
+            primaryStage.setFullScreen(true);
+            primaryStage.setFullScreenExitHint(""); // Oculta el mensaje "presiona ESC"
+
             primaryStage.show();
         } catch (Exception e) {
-            e.printStackTrace(); // MUY IMPORTANTE ver el error en consola
+            e.printStackTrace(); // Ver errores en consola
         }
     }
 
