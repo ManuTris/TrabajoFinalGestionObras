@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+
+
+<VBox xmlns="http://javafx.com/javafx" stylesheets="@/view/style.css"
+
+	xmlns:fx="http://javafx.com/fxml"
+	fx:controller="controller.DashboardController" alignment="CENTER"
+	spacing="15" style="-fx-padding: 20;">
+
+	<Label text="Panel del Gestor" style="-fx-font-size: 18px;" />
+	<Label fx:id="labelNombre" />
+	<Label fx:id="labelCorreo" />
+	<Button text="Cerrar sesión" onAction="#handleLogout" />
+</VBox>

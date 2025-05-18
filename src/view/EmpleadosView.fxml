@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+	xmlns:fx="http://javafx.com/fxml"
+	fx:controller="controller.EmpleadosController"
+	stylesheets="@/view/style.css" spacing="10" alignment="CENTER"
+	style="-fx-padding: 20;">
+
+	<Label text="Gestión de Empleados" style="-fx-font-size: 16px;" />
+<Button text="Agregar Empleado" onAction="#abrirFormularioNuevo"/>
+
+	<TableView fx:id="tablaEmpleados" prefHeight="200"
+		prefWidth="300">
+		<columns>
+			<TableColumn fx:id="idColumna" text="ID" />
+			<TableColumn fx:id="nombreColumna" text="Nombre" />
+			<TableColumn fx:id="cargoColumna" text="Cargo" />
+		</columns>
+	</TableView>
+</VBox>

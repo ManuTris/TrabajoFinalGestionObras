@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controller.FormEmpleadoController"
+      alignment="CENTER" spacing="10" style="-fx-padding: 20;">
+
+    <Label text="Nuevo Empleado" style="-fx-font-size: 16px;" />
+    <TextField fx:id="nombreField" promptText="Nombre" />
+    <TextField fx:id="cargoField" promptText="Cargo" />
+    <HBox spacing="10">
+        <Button text="Guardar" onAction="#guardarEmpleado"/>
+        <Button text="Cancelar" onAction="#cerrarVentana"/>
+    </HBox>
+</VBox>
