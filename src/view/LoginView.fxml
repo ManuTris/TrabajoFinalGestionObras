@@ -1,16 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.control.*?>
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="controller.LoginController"
       stylesheets="@/view/style.css"
-      alignment="CENTER" spacing="10" style="-fx-padding: 20;">
-    
-    <Label text="Iniciar sesión" style="-fx-font-size: 18px;"/>
-    <TextField fx:id="usernameField" promptText="Usuario"/>
-    <PasswordField fx:id="passwordField" promptText="Contraseña"/>
-    <Button text="Entrar" onAction="#handleLogin"/>
+      alignment="CENTER" spacing="20"
+      style="-fx-padding: 50;" maxWidth="400">
+
+<Label text="ObraNova"
+       style="-fx-font-size: 50px;
+              -fx-font-weight: bold;
+              -fx-text-fill: linear-gradient(to right, #2b6cb0, #00bfff);
+              -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 6, 0.3, 0, 2);" />
+
+    <!-- Imagen logo centrada -->
+    <ImageView fitWidth="160" fitHeight="160" pickOnBounds="true" preserveRatio="true">
+        <image>
+            <Image url="@images/logo.png"/>
+        </image>
+    </ImageView>
+
+  
+           
+    <Label text="Acceso a la plataforma de gestión"
+           style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+
+    <!-- Caja de formulario -->
+    <VBox spacing="10" alignment="CENTER" maxWidth="300">
+        <TextField fx:id="usernameField" promptText="Usuario" maxWidth="250"/>
+        <PasswordField fx:id="passwordField" promptText="Contraseña" maxWidth="250"/>
+        <Button text="Entrar" onAction="#handleLogin" maxWidth="150"/>
+    </VBox>
 </VBox>

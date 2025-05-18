@@ -5,18 +5,20 @@
 <?import javafx.scene.control.*?>
 
 <VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="controller.FormObraController"
-      stylesheets="@/view/style.css"
-      alignment="CENTER" spacing="10" style="-fx-padding: 20;">
+	xmlns:fx="http://javafx.com/fxml"
+	fx:controller="controller.FormObraController"
+	stylesheets="@/view/style.css" alignment="CENTER" spacing="10"
+	style="-fx-padding: 20;">
 
-    <Label text="Nueva Obra" style="-fx-font-size: 16px;" />
-    <TextField fx:id="nombreField" promptText="Nombre de la obra" />
-    <TextField fx:id="estadoField" promptText="Estado" />
-    <HBox spacing="10">
-        <Button text="Guardar" onAction="#guardarObra"/>
-        <Button text="Cancelar" onAction="#cerrarVentana"/>
-    </HBox>
+	<Label text="Nueva Obra" style="-fx-font-size: 16px;" />
+	<TextField fx:id="nombreField" promptText="Nombre de la obra" />
+	<TextField fx:id="estadoField" promptText="Estado" />
+	<HBox spacing="10">
+		<Button text="Guardar" onAction="#guardarObra" />
+		<Button text="Cancelar" onAction="#cerrarVentana"
+			styleClass="button-cancel" />
+
+	</HBox>
 </VBox>
 
  
