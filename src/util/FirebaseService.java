@@ -141,9 +141,9 @@ public class FirebaseService {
                 String entrada = obj.get("horaEntrada").getAsString();
                 String salida = obj.get("horaSalida").getAsString();
                 boolean tarde = obj.get("fichadoTarde").getAsBoolean();
+                String fecha = obj.get("fecha").getAsString();
 
-                // 👇 ahora pasamos key como fecha
-                fichajes.add(new Fichaje(empleadoId, obraId, entrada, salida, tarde, key));
+                fichajes.add(new Fichaje(empleadoId, obraId, entrada, salida, tarde, fecha));
             }
 
         } catch (Exception e) {

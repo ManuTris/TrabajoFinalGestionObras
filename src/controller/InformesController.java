@@ -1,13 +1,11 @@
 package controller;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TableColumn;
+import javafx.scene.control.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.beans.property.SimpleStringProperty;
-
 import model.Fichaje;
 
 import java.io.BufferedReader;
@@ -28,14 +26,14 @@ public class InformesController {
 
     // Fichajes
     @FXML private TableView<Fichaje> tablaFichajes;
-    @FXML private TableColumn<Fichaje, String> colFechaFichaje;
+    @FXML private TableColumn<Fichaje, String> colFecha;
     @FXML private TableColumn<Fichaje, String> colNombre;
     @FXML private TableColumn<Fichaje, String> colObra;
     @FXML private TableColumn<Fichaje, String> colEntrada;
     @FXML private TableColumn<Fichaje, String> colSalida;
     @FXML private TableColumn<Fichaje, Boolean> colTarde;
 
-    // Errores de obra (todavía no implementado)
+    // Errores de obra (a implementar)
     @FXML private TableView<?> tablaErrores;
     @FXML private TableColumn<?, ?> colErrorObra;
     @FXML private TableColumn<?, ?> colDescripcion;
@@ -43,15 +41,17 @@ public class InformesController {
 
     @FXML
     public void initialize() {
-        cargarNombres(); 
+        cargarNombres(); // Cargar empleados y obras antes de mostrar
 
-        // Mostrar solo la fecha sin la hora
-        colFechaFichaje.setCellValueFactory(cellData -> {
-            String rawFecha = cellData.getValue().getFecha();
-            String soloFecha = rawFecha.split("T")[0];
-            String[] partes = soloFecha.split("-");
-            String formatoCorto = partes[2] + "/" + partes[1] + "/" + partes[0];
-            return new SimpleStringProperty(formatoCorto);
+        // Formatear fecha a dd/MM/yyyy
+        colFecha.setCellValueFactory(cellData -> {
+            String rawFecha = cellData.getValue().getFecha(); // yyyy-MM-dd
+            String[] partes = rawFecha.split("-");
+            if (partes.length == 3) {
+                return new SimpleStringProperty(partes[2] + "/" + partes[1] + "/" + partes[0]);
+            } else {
+                return new SimpleStringProperty(rawFecha);
+            }
         });
 
         colNombre.setCellValueFactory(cellData -> {
@@ -68,11 +68,32 @@ public class InformesController {
         colSalida.setCellValueFactory(new PropertyValueFactory<>("horaSalida"));
         colTarde.setCellValueFactory(new PropertyValueFactory<>("fichadoTarde"));
 
-        // Leer fichajes desde Firebase y cargarlos en la tabla
+
+        // Celda personalizada para ¿Tarde?
+        colTarde.setCellFactory(column -> new TableCell<Fichaje, Boolean>() {
+            @Override
+            protected void updateItem(Boolean value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setText(null);
+                    setStyle("");
+                } else if (value) {
+                    setText("Tarde");
+                    setStyle("-fx-background-color: #ffcccc; -fx-text-fill: red; -fx-font-weight: bold;");
+                } else {
+                    setText("Puntual");
+                    setStyle("-fx-background-color: #ccffcc; -fx-text-fill: green; -fx-font-weight: bold;");
+                }
+            }
+        });
+
+        // Cargar datos desde Firebase
         List<Fichaje> lista = util.FirebaseService.leerFichajes();
         ObservableList<Fichaje> datos = FXCollections.observableArrayList(lista);
         tablaFichajes.setItems(datos);
     }
+
+  
 
     private void cargarNombres() {
         // Leer empleados

@@ -17,27 +17,10 @@ public class Fichaje {
         this.fecha = fecha;
     }
 
-    public String getFecha() {
-        return fecha;
-    }
-
-    public String getEmpleadoId() {
-        return empleadoId;
-    }
-
-    public String getObraId() {
-        return obraId;
-    }
-
-    public String getHoraEntrada() {
-        return horaEntrada;
-    }
-
-    public String getHoraSalida() {
-        return horaSalida;
-    }
-
-    public boolean isFichadoTarde() {
-        return fichadoTarde;
-    }
+    public String getFecha() { return fecha; }
+    public String getEmpleadoId() { return empleadoId; }
+    public String getObraId() { return obraId; }
+    public String getHoraEntrada() { return horaEntrada; }
+    public String getHoraSalida() { return horaSalida; }
+    public boolean isFichadoTarde() { return fichadoTarde; }
 }
