@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controller.InformesController"
+      spacing="10" style="-fx-padding: 30;" alignment="CENTER">
+
+    <Label text="Panel de Informes"
+           style="-fx-font-size: 24px;
+                  -fx-font-weight: bold;
+                  -fx-text-fill: linear-gradient(to right, #2b6cb0, #00bfff);" />
+
+    <TabPane prefWidth="900" prefHeight="600">
+
+        <!-- Tab 1: Fichajes -->
+        <Tab text="Fichajes">
+            <VBox spacing="10" style="-fx-padding: 20;">
+                <Label text="Resumen de Fichajes" style="-fx-font-size: 18px;" />
+                <TableView fx:id="tablaFichajes">
+                    <columns>
+                        <TableColumn fx:id="colNombre" text="Empleado" /> 
+                       <TableColumn fx:id="colFechaFichaje" text="Fecha" />
+                       
+                                   
+                        <TableColumn fx:id="colEntrada" text="Hora Entrada" />
+                        <TableColumn fx:id="colSalida" text="Hora Salida" />
+                        <TableColumn fx:id="colTarde" text="¿Tarde?" />
+                    
+                        
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+
+        <!-- Tab 2: Errores de obra -->
+        <Tab text="Errores Reportados">
+            <VBox spacing="10" style="-fx-padding: 20;">
+                <Label text="Errores en obras reportados por empleados" style="-fx-font-size: 18px;" />
+                <TableView fx:id="tablaErrores">
+                    <columns>
+                        <TableColumn fx:id="colObra" text="Obra" />
+                        <TableColumn fx:id="colDescripcion" text="Descripción del error" />
+                        <TableColumn fx:id="colFechaError" text="Fecha reporte" />
+                        
+                       
+                        
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+
+    </TabPane>
+</VBox>

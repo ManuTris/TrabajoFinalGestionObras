@@ -12,6 +12,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import model.Empleado;
+import model.Fichaje;
 import model.Obra;
 
 public class FirebaseService {
@@ -119,6 +120,39 @@ public class FirebaseService {
 
         return obras;
     }
+    
+    public static List<Fichaje> leerFichajes() {
+        List<Fichaje> fichajes = new ArrayList<>();
+
+        try {
+            URL url = new URL(BASE_URL + "/fichajes.json");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
+            reader.close();
+
+            for (String key : data.keySet()) {
+                JsonObject obj = data.getAsJsonObject(key);
+
+                String empleadoId = obj.get("empleadoId").getAsString();
+                String obraId = obj.get("obraId").getAsString();
+                String entrada = obj.get("horaEntrada").getAsString();
+                String salida = obj.get("horaSalida").getAsString();
+                boolean tarde = obj.get("fichadoTarde").getAsBoolean();
+
+                // 👇 ahora pasamos key como fecha
+                fichajes.add(new Fichaje(empleadoId, obraId, entrada, salida, tarde, key));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return fichajes;
+    }
+
 
 }
 

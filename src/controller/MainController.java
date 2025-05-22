@@ -38,4 +38,9 @@ public class MainController {
             e.printStackTrace();
         }
     }
+    @FXML
+    private void loadInformes() {
+        cargarVista("/view/InformesView.fxml");
+    }
+
 }

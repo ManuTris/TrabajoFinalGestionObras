@@ -4,23 +4,24 @@
 <?import javafx.scene.control.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="controller.MainController"
-            stylesheets="@/view/style.css">
+	xmlns:fx="http://javafx.com/fxml"
+	fx:controller="controller.MainController"
+	stylesheets="@/view/style.css">
 
-    <left>
-        <VBox spacing="10" style="-fx-padding: 15; -fx-background-color: #f0f0f0;"
-        
-        >
-            <Label text="Menú" style="-fx-font-weight: bold;"/>
-            <Button text="Empleados" onAction="#loadEmpleados"/>
-            <Button text="Obras" onAction="#loadObras"/>
-            <Button text="Perfil" onAction="#loadPerfil"/>
-            <Button text="Cerrar sesión" onAction="#handleLogout"/>
-        </VBox>
-    </left>
+	<left>
+		<VBox spacing="10"
+			style="-fx-padding: 15; -fx-background-color: #f0f0f0;">
+			
+			<Label text="Menú" style="-fx-font-weight: bold;" />
+			<Button text="Informes" onAction="#loadInformes" />
+			<Button text="Empleados" onAction="#loadEmpleados" />
+			<Button text="Obras" onAction="#loadObras" />
+			<Button text="Perfil" onAction="#loadPerfil" />
+			<Button text="Cerrar sesión" onAction="#handleLogout" />
+		</VBox>
+	</left>
 
-    <center>
-        <StackPane fx:id="contentArea" />
-    </center>
+	<center>
+		<StackPane fx:id="contentArea" />
+	</center>
 </BorderPane>
