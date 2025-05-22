@@ -7,13 +7,29 @@
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="controller.InformesController"
       spacing="10" style="-fx-padding: 30;" alignment="CENTER">
+      
+      
 
     <Label text="Panel de Informes"
            style="-fx-font-size: 24px;
                   -fx-font-weight: bold;
                   -fx-text-fill: linear-gradient(to right, #2b6cb0, #00bfff);" />
+                  
+   <HBox fx:id="contenedorFiltros" spacing="10" alignment="CENTER">
+    <Label text="Empleado:" />
+    <TextField fx:id="filtroEmpleado" promptText="Nombre o ID" />
+    <Label text="Desde:" />
+    <DatePicker fx:id="fechaInicio" />
+    <Label text="Hasta:" />
+    <DatePicker fx:id="fechaFin" />
+    <Button text="Filtrar" onAction="#filtrarFichajes" />
+    <Button text="Limpiar" onAction="#resetFiltros" />
+</HBox>
+   
+                  
 
-    <TabPane prefWidth="900" prefHeight="600">
+    <TabPane fx:id="tabPane" prefWidth="900" prefHeight="600">
+    
 
         <!-- Tab 1: Fichajes -->
      <Tab text="Fichajes">

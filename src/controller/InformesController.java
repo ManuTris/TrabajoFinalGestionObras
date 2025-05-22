@@ -5,6 +5,7 @@ import javafx.scene.control.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.beans.property.SimpleStringProperty;
 import model.Fichaje;
 
@@ -12,9 +13,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -23,6 +23,14 @@ public class InformesController {
 
     private Map<String, String> empleadosMap = new HashMap<>();
     private Map<String, String> obrasMap = new HashMap<>();
+
+    // Filtros
+    @FXML private TextField filtroEmpleado;
+    @FXML private DatePicker fechaInicio;
+    @FXML private DatePicker fechaFin;
+    @FXML private HBox contenedorFiltros;
+    @FXML private TabPane tabPane; // asegúrate de darle fx:id en el FXML también
+
 
     // Fichajes
     @FXML private TableView<Fichaje> tablaFichajes;
@@ -33,19 +41,31 @@ public class InformesController {
     @FXML private TableColumn<Fichaje, String> colSalida;
     @FXML private TableColumn<Fichaje, Boolean> colTarde;
 
-    // Errores de obra (a implementar)
+    // Errores (pendiente)
     @FXML private TableView<?> tablaErrores;
     @FXML private TableColumn<?, ?> colErrorObra;
     @FXML private TableColumn<?, ?> colDescripcion;
     @FXML private TableColumn<?, ?> colFechaError;
 
+    private List<Fichaje> todosFichajes = new ArrayList<>();
+
     @FXML
     public void initialize() {
-        cargarNombres(); // Cargar empleados y obras antes de mostrar
+    	tabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+    	    if (newTab != null && "Fichajes".equals(newTab.getText())) {
+    	        contenedorFiltros.setVisible(true);
+    	        contenedorFiltros.setManaged(true);
+    	    } else {
+    	        contenedorFiltros.setVisible(false);
+    	        contenedorFiltros.setManaged(false);
+    	    }
+    	});
 
-        // Formatear fecha a dd/MM/yyyy
+        cargarNombres();
+
+        // Configurar columnas
         colFecha.setCellValueFactory(cellData -> {
-            String rawFecha = cellData.getValue().getFecha(); // yyyy-MM-dd
+            String rawFecha = cellData.getValue().getFecha();
             String[] partes = rawFecha.split("-");
             if (partes.length == 3) {
                 return new SimpleStringProperty(partes[2] + "/" + partes[1] + "/" + partes[0]);
@@ -66,10 +86,8 @@ public class InformesController {
 
         colEntrada.setCellValueFactory(new PropertyValueFactory<>("horaEntrada"));
         colSalida.setCellValueFactory(new PropertyValueFactory<>("horaSalida"));
+
         colTarde.setCellValueFactory(new PropertyValueFactory<>("fichadoTarde"));
-
-
-        // Celda personalizada para ¿Tarde?
         colTarde.setCellFactory(column -> new TableCell<Fichaje, Boolean>() {
             @Override
             protected void updateItem(Boolean value, boolean empty) {
@@ -78,25 +96,57 @@ public class InformesController {
                     setText(null);
                     setStyle("");
                 } else if (value) {
-                    setText("Tarde");
+                    setText("🔴 Tarde");
                     setStyle("-fx-background-color: #ffcccc; -fx-text-fill: red; -fx-font-weight: bold;");
                 } else {
-                    setText("Puntual");
+                    setText("🟢 Puntual");
                     setStyle("-fx-background-color: #ccffcc; -fx-text-fill: green; -fx-font-weight: bold;");
                 }
             }
         });
 
-        // Cargar datos desde Firebase
-        List<Fichaje> lista = util.FirebaseService.leerFichajes();
-        ObservableList<Fichaje> datos = FXCollections.observableArrayList(lista);
-        tablaFichajes.setItems(datos);
+        // Cargar y mostrar datos
+        todosFichajes = util.FirebaseService.leerFichajes();
+        tablaFichajes.setItems(FXCollections.observableArrayList(todosFichajes));
     }
 
-  
+    @FXML
+    private void filtrarFichajes() {
+        String texto = filtroEmpleado.getText().toLowerCase();
+        LocalDate desde = fechaInicio.getValue();
+        LocalDate hasta = fechaFin.getValue();
+
+        List<Fichaje> filtrados = new ArrayList<>();
+
+        for (Fichaje f : todosFichajes) {
+            String nombre = empleadosMap.getOrDefault(f.getEmpleadoId(), "").toLowerCase();
+            LocalDate fecha;
+            try {
+                fecha = LocalDate.parse(f.getFecha());
+            } catch (Exception e) {
+                continue;
+            }
+
+            boolean coincideEmpleado = texto.isEmpty() || nombre.contains(texto) || f.getEmpleadoId().toLowerCase().contains(texto);
+            boolean dentroRango = (desde == null || !fecha.isBefore(desde)) && (hasta == null || !fecha.isAfter(hasta));
+
+            if (coincideEmpleado && dentroRango) {
+                filtrados.add(f);
+            }
+        }
+
+        tablaFichajes.setItems(FXCollections.observableArrayList(filtrados));
+    }
+
+    @FXML
+    private void resetFiltros() {
+        filtroEmpleado.clear();
+        fechaInicio.setValue(null);
+        fechaFin.setValue(null);
+        tablaFichajes.setItems(FXCollections.observableArrayList(todosFichajes));
+    }
 
     private void cargarNombres() {
-        // Leer empleados
         try {
             URL url = new URL("https://gestorobras-db4ac-default-rtdb.europe-west1.firebasedatabase.app/empleados.json");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -115,7 +165,6 @@ public class InformesController {
             e.printStackTrace();
         }
 
-        // Leer obras
         try {
             URL url = new URL("https://gestorobras-db4ac-default-rtdb.europe-west1.firebasedatabase.app/obras.json");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -135,3 +184,4 @@ public class InformesController {
         }
     }
 }
+
