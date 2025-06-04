@@ -1,24 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
 <VBox xmlns="http://javafx.com/javafx"
-	xmlns:fx="http://javafx.com/fxml"
-	fx:controller="controller.FormObraController"
-	stylesheets="@/view/style.css" alignment="CENTER" spacing="10"
-	style="-fx-padding: 20;">
-
-	<Label text="Nueva Obra" style="-fx-font-size: 16px;" />
-	<TextField fx:id="nombreField" promptText="Nombre de la obra" />
-	<TextField fx:id="estadoField" promptText="Estado" />
-	<HBox spacing="10">
-		<Button text="Guardar" onAction="#guardarObra" />
-		<Button text="Cancelar" onAction="#cerrarVentana"
-			styleClass="button-cancel" />
-
-	</HBox>
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controller.FormObraController"
+      alignment="CENTER" spacing="10" style="-fx-padding: 20;">
+    
+    <Label text="Agregar Nueva Obra" style="-fx-font-size: 20px;"/>
+    
+    <TextField fx:id="nombreField" promptText="Nombre de la Obra"/>
+    <TextField fx:id="estadoField" promptText="Estado de la Obra"/>
+    
+    <HBox spacing="10">
+        <Button text="Guardar" onAction="#guardarObra"/>
+        <Button text="Cancelar" onAction="#cerrarVentana"/>
+    </HBox>
 </VBox>
-
- 

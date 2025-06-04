@@ -140,6 +140,8 @@ public class FirebaseService {
         return obras;
     }
     
+    
+    
     public static List<Fichaje> leerFichajes() {
         List<Fichaje> lista = new ArrayList<>();
 
@@ -174,5 +176,29 @@ public class FirebaseService {
 
         return lista;
     }
+    
+    public static void guardarObraEnFirebase(Obra obra) {
+        try {
+            URL url = new URL(BASE_URL + "/obras/" + obra.getId() + ".json");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("PUT");
+            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setDoOutput(true);
+
+            String json = String.format("{\"nombre\":\"%s\", \"estado\":\"%s\"}",
+                                        obra.getNombre(), obra.getEstado());
+
+            try (OutputStream os = conn.getOutputStream()) {
+                byte[] input = json.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            conn.getResponseCode();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }
 

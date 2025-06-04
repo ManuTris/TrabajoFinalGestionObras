@@ -5,6 +5,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import model.Obra;
 import javafx.collections.ObservableList;
+import util.FirebaseService;
 
 public class FormObraController {
 
@@ -22,10 +23,11 @@ public class FormObraController {
         String nombre = nombreField.getText();
         String estado = estadoField.getText();
 
-        if (!nombre.isEmpty() && !estado.isEmpty()) {
-            int nuevoId = listaObras.size() + 100; // ejemplo: id 101, 102...
+        if (nombre != null && !nombre.isEmpty() && estado != null && !estado.isEmpty()) {
+            int nuevoId = (int) (Math.random() * 1000000); // generar ID único
             Obra nueva = new Obra(nuevoId, nombre, estado);
             listaObras.add(nueva);
+            FirebaseService.guardarObraEnFirebase(nueva);
             cerrarVentana();
         }
     }
