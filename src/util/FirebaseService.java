@@ -7,7 +7,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -122,37 +124,38 @@ public class FirebaseService {
     }
     
     public static List<Fichaje> leerFichajes() {
-        List<Fichaje> fichajes = new ArrayList<>();
+        List<Fichaje> lista = new ArrayList<>();
 
         try {
-            URL url = new URL(BASE_URL + "/fichajes.json");
+            URL url = new URL("https://gestorobras-db4ac-default-rtdb.europe-west1.firebasedatabase.app/fichajes.json");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
+            JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
             reader.close();
 
-            for (String key : data.keySet()) {
-                JsonObject obj = data.getAsJsonObject(key);
+            for (Map.Entry<String, JsonElement> empleadoEntry : root.entrySet()) {
+                String empleadoId = empleadoEntry.getKey();
+                JsonObject fichajesPorFecha = empleadoEntry.getValue().getAsJsonObject();
 
-                String empleadoId = obj.get("empleadoId").getAsString();
-                String obraId = obj.get("obraId").getAsString();
-                String entrada = obj.get("horaEntrada").getAsString();
-                String salida = obj.get("horaSalida").getAsString();
-                boolean tarde = obj.get("fichadoTarde").getAsBoolean();
-                String fecha = obj.get("fecha").getAsString();
+                for (Map.Entry<String, JsonElement> fichaEntry : fichajesPorFecha.entrySet()) {
+                    JsonObject ficha = fichaEntry.getValue().getAsJsonObject();
+                    String obraId = ficha.get("obraId").getAsString();
+                    String fecha = ficha.get("fecha").getAsString();
+                    String horaEntrada = ficha.get("horaEntrada").getAsString();
+                    String horaSalida = ficha.has("horaSalida") ? ficha.get("horaSalida").getAsString() : "";
+                    boolean fichadoTarde = ficha.get("fichadoTarde").getAsBoolean();
 
-                fichajes.add(new Fichaje(empleadoId, obraId, entrada, salida, tarde, fecha));
+                    lista.add(new Fichaje(empleadoId, obraId, horaEntrada, horaSalida, fichadoTarde, fecha));
+                }
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return fichajes;
+        return lista;
     }
-
-
 }
 
