@@ -10,6 +10,6 @@ public class PerfilController {
 
     @FXML
     public void initialize() {
-        // Puedes hacer que se cargue el perfil real más adelante
+       
     }
 }

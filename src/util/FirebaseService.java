@@ -1,5 +1,7 @@
 package util;
 
+
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -56,6 +58,8 @@ public class FirebaseService {
 
             JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
             reader.close();
+            System.out.println("Cargando empleados desde Firebase...");
+            System.out.println(data.toString());
 
             for (String key : data.keySet()) {
                 JsonObject obj = data.getAsJsonObject(key);
@@ -72,7 +76,8 @@ public class FirebaseService {
     }
     public static boolean verificarCredenciales(String usuario, String contraseña) {
         try {
-            URL url = new URL(BASE_URL + "/usuarios.json");
+            @SuppressWarnings("deprecation")
+			URL url = new URL(BASE_URL + "/admins.json");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
@@ -80,20 +85,30 @@ public class FirebaseService {
             JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
             reader.close();
 
-            for (String key : data.keySet()) {
-                JsonObject obj = data.getAsJsonObject(key);
-                String u = obj.get("usuario").getAsString();
-                String p = obj.get("contraseña").getAsString();
+            for (Map.Entry<String, JsonElement> entry : data.entrySet()) {
+                JsonObject admin = entry.getValue().getAsJsonObject();
+                System.out.println("Cargando admins desde Firebase...");
+                System.out.println(data.toString());
 
-                if (u.equals(usuario) && p.equals(contraseña)) {
-                    return true;
+             
+                if (admin.has("usuario") && admin.has("contraseña")) {
+                    String nombreUsuario = admin.get("usuario").getAsString();
+                    String clave = admin.get("contraseña").getAsString();
+
+                    if (usuario.equals(nombreUsuario) && contraseña.equals(clave)) {
+                        return true;
+                    }
                 }
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return false;
     }
+
+
     public static List<Obra> leerObras() {
         List<Obra> obras = new ArrayList<>();
 
@@ -108,6 +123,8 @@ public class FirebaseService {
 
             JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
             reader.close();
+           
+
 
             for (String key : data.keySet()) {
                 JsonObject obj = data.getAsJsonObject(key);
