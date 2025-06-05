@@ -16,7 +16,9 @@
 			<Button text="Informes" onAction="#loadInformes" />
 			<Button text="Empleados" onAction="#loadEmpleados" />
 			<Button text="Obras" onAction="#loadObras" />
+			<Button text="Horarios" onAction="#loadHorarios"/>
 			<Button text="Perfil" onAction="#loadPerfil" />
+
 		
 			<Button text="Cerrar sesión" onAction="#handleLogout" />
 		</VBox>

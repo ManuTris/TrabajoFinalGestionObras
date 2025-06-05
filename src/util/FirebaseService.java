@@ -199,6 +199,63 @@ public class FirebaseService {
             e.printStackTrace();
         }
     }
+    public static void crearEmpleadoCompleto(String uid, String nombre, String cargo) {
+        try {
+            // 1. empleados/
+            String empleadoJson = String.format("{\"nombre\":\"%s\", \"cargo\":\"%s\"}", nombre, cargo);
+            enviarPUT("/empleados/" + uid + ".json", empleadoJson);
 
+            // 2. usuarios/uid/perfil
+            String perfilJson = """
+                {
+                    "direccion": "",
+                    "cp": "",
+                    "poblacion": "",
+                    "telefono": "",
+                    "foto": ""
+                }
+            """;
+            enviarPUT("/usuarios/" + uid + "/perfil.json", perfilJson);
+
+            // 3. horarios/
+            String horariosJson = """
+                {
+                    "Lunes": "-",
+                    "Martes": "-",
+                    "Miercoles": "-",
+                    "Jueves": "-",
+                    "Viernes": "-",
+                    "Sabado": "-",
+                    "Domingo": "-"
+                }
+            """;
+            enviarPUT("/horarios/" + uid + ".json", horariosJson);
+
+            // 4. fichajes/
+            enviarPUT("/fichajes/" + uid + ".json", "{}");
+
+            System.out.println("✅ Empleado creado correctamente en Firebase.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Método auxiliar PUT genérico
+    private static void enviarPUT(String path, String jsonBody) throws Exception {
+        URL url = new URL(BASE_URL + path);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("PUT");
+        conn.setRequestProperty("Content-Type", "application/json; utf-8");
+        conn.setDoOutput(true);
+
+        try (OutputStream os = conn.getOutputStream()) {
+            byte[] input = jsonBody.getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+
+        conn.getResponseCode();
+        conn.disconnect();
+    }
 }
 

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="controller.HorariosController"
+      stylesheets="@/view/style.css"
+      spacing="10" alignment="CENTER"
+      style="-fx-padding: 20;">
+
+    <Label text="Consulta de Horarios"
+           style="-fx-font-size: 24px;
+                  -fx-font-weight: bold;
+                  -fx-text-fill: linear-gradient(to right, #2b6cb0, #00bfff);
+                  -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 6, 0.3, 0, 2);" />
+
+    <HBox spacing="10" alignment="CENTER">
+        <Label text="Empleado:" />
+        <ComboBox fx:id="comboEmpleados" prefWidth="250"/>
+        <Button text="Cargar Horario" onAction="#cargarHorario"/>
+    </HBox>
+
+    <TableView fx:id="tablaHorarios" prefHeight="250" prefWidth="400">
+        <columns>
+            <TableColumn fx:id="colDia" text="Día" prefWidth="200"/>
+            <TableColumn fx:id="colHorario" text="Horario" prefWidth="200"/>
+        </columns>
+    </TableView>
+
+</VBox>

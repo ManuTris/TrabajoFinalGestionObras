@@ -42,5 +42,9 @@ public class MainController {
     private void loadInformes() {
         cargarVista("/view/InformesView.fxml");
     }
+    @FXML
+    private void loadHorarios() {
+        cargarVista("/view/HorariosView.fxml");
+    }
 
 }

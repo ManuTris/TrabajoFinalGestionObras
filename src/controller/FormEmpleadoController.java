@@ -6,6 +6,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import model.Empleado;
 import javafx.collections.ObservableList;
+import java.util.UUID;
 
 public class FormEmpleadoController {
 
@@ -24,11 +25,11 @@ public class FormEmpleadoController {
         String cargo = cargoField.getText();
 
         if (!nombre.isEmpty() && !cargo.isEmpty()) {
-            util.FirebaseService.enviarEmpleado(nombre, cargo);
+            String uid = UUID.randomUUID().toString(); // UID único compatible con Android
+            FirebaseService.crearEmpleadoCompleto(uid, nombre, cargo);
             cerrarVentana();
         }
     }
-
 
     @FXML
     private void cerrarVentana() {
