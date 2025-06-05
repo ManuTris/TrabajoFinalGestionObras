@@ -1,16 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="controller.PerfilController"
-     stylesheets="@/view/style.css"
-     
-      spacing="10" alignment="CENTER" style="-fx-padding: 20;">
-    
-    <Label text="Perfil del Gestor" style="-fx-font-size: 16px;" />
-    <Label text="Nombre: admin" />
-    <Label text="Correo: admin@empresa.com" />
+      spacing="20" alignment="CENTER"
+      style="-fx-padding: 40; -fx-background-color: #f9f9f9;">
+
+    <Label text="Perfil del Administrador"
+           style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
+
+    <GridPane hgap="10" vgap="10">
+        <Label text="Usuario:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <Label fx:id="usuarioLabel" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Rol:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <Label text="Administrador" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Fecha de ingreso:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <Label text="01/01/2024" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <Button text="Cambiar contraseña" onAction="#cambiarContrasena"/>
+    <Button text="Cerrar sesión" onAction="#cerrarSesion"/>
 </VBox>

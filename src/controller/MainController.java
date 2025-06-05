@@ -27,7 +27,7 @@ public class MainController {
 
     @FXML
     private void handleLogout() {
-        System.exit(0); // En el futuro, volver al login
+        System.exit(0);
     }
 
     private void cargarVista(String rutaFXML) {
@@ -38,19 +38,25 @@ public class MainController {
             e.printStackTrace();
         }
     }
+
     @FXML
     private void loadInformes() {
         cargarVista("/view/InformesView.fxml");
     }
+
     @FXML
     private void loadHorarios() {
         cargarVista("/view/HorariosView.fxml");
     }
-    
+
     @FXML
     private void loadAsignarObras() {
         cargarVista("/view/AsignarObrasView.fxml");
     }
 
-
+   
+    @FXML
+    public void initialize() {
+        cargarVista("/view/BienvenidaView.fxml");
+    }
 }

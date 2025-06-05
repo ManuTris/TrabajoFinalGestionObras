@@ -1,21 +1,11 @@
 package util;
 
-
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
+import com.google.gson.*;
 import model.Empleado;
 import model.Fichaje;
 import model.Obra;
@@ -23,6 +13,65 @@ import model.Obra;
 public class FirebaseService {
 
     private static final String BASE_URL = "https://gestorobras-db4ac-default-rtdb.europe-west1.firebasedatabase.app";
+
+    // ============================================================================
+    // AUTENTICACIÓN
+    // ============================================================================
+
+    public static boolean verificarCredenciales(String usuario, String contraseña) {
+        try {
+            URL url = new URL(BASE_URL + "/admins.json");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
+            reader.close();
+
+            for (Map.Entry<String, JsonElement> entry : data.entrySet()) {
+                JsonObject admin = entry.getValue().getAsJsonObject();
+                if (admin.has("usuario") && admin.has("contraseña")) {
+                    String nombreUsuario = admin.get("usuario").getAsString();
+                    String clave = admin.get("contraseña").getAsString();
+
+                    if (usuario.equals(nombreUsuario) && contraseña.equals(clave)) {
+                        util.Sesion.adminKey = entry.getKey();   // Guardar sesión activa
+                        util.Sesion.usuario = nombreUsuario;
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public static boolean cambiarContrasenaAdmin(String nuevaContrasena) {
+        try {
+            if (util.Sesion.adminKey == null) return false;
+
+            String path = "/admins/" + util.Sesion.adminKey + "/contraseña.json";
+            URL url = new URL(BASE_URL + path);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("PUT");
+            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setDoOutput(true);
+
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(("\"" + nuevaContrasena + "\"").getBytes("utf-8"));
+            }
+
+            return conn.getResponseCode() == 200;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // ============================================================================
+    // EMPLEADOS
+    // ============================================================================
 
     public static void enviarEmpleado(String nombre, String cargo) {
         try {
@@ -33,21 +82,18 @@ public class FirebaseService {
             conn.setDoOutput(true);
 
             String json = String.format("{\"nombre\":\"%s\", \"cargo\":\"%s\"}", nombre, cargo);
-
             try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = json.getBytes("utf-8");
-                os.write(input, 0, input.length);
+                os.write(json.getBytes("utf-8"));
             }
 
-            conn.getResponseCode(); // fuerza conexión
-
+            conn.getResponseCode();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     public static List<Empleado> leerEmpleados() {
         List<Empleado> empleados = new ArrayList<>();
-
         try {
             URL url = new URL(BASE_URL + "/empleados.json");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -59,22 +105,18 @@ public class FirebaseService {
 
             for (String uid : data.keySet()) {
                 JsonObject obj = data.getAsJsonObject(uid);
-                String nombre = obj.get("nombre").getAsString();
-                String cargo = obj.get("cargo").getAsString();
-                empleados.add(new Empleado(uid, nombre, cargo));
+                empleados.add(new Empleado(uid, obj.get("nombre").getAsString(), obj.get("cargo").getAsString()));
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return empleados;
     }
 
-    public static boolean verificarCredenciales(String usuario, String contraseña) {
+    public static Map<String, String> obtenerEmpleados() {
+        Map<String, String> empleados = new HashMap<>();
         try {
-            @SuppressWarnings("deprecation")
-			URL url = new URL(BASE_URL + "/admins.json");
+            URL url = new URL(BASE_URL + "/empleados.json");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
@@ -82,29 +124,49 @@ public class FirebaseService {
             JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
             reader.close();
 
-            for (Map.Entry<String, JsonElement> entry : data.entrySet()) {
-                JsonObject admin = entry.getValue().getAsJsonObject();
-                System.out.println("Cargando admins desde Firebase...");
-                System.out.println(data.toString());
-
-             
-                if (admin.has("usuario") && admin.has("contraseña")) {
-                    String nombreUsuario = admin.get("usuario").getAsString();
-                    String clave = admin.get("contraseña").getAsString();
-
-                    if (usuario.equals(nombreUsuario) && contraseña.equals(clave)) {
-                        return true;
-                    }
-                }
+            for (String uid : data.keySet()) {
+                JsonObject obj = data.getAsJsonObject(uid);
+                empleados.put(uid, obj.get("nombre").getAsString());
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return false;
+        return empleados;
     }
 
+    public static void crearEmpleadoCompleto(String uid, String nombre, String cargo) {
+        try {
+            enviarPUT("/empleados/" + uid + ".json",
+                    String.format("{\"nombre\":\"%s\", \"cargo\":\"%s\"}", nombre, cargo));
+
+            enviarPUT("/usuarios/" + uid + "/perfil.json", """
+                {
+                    "direccion": "",
+                    "cp": "",
+                    "poblacion": "",
+                    "telefono": "",
+                    "foto": ""
+                }
+            """);
+
+            enviarPUT("/horarios/" + uid + ".json", """
+                {
+                    "Lunes": "-", "Martes": "-", "Miercoles": "-",
+                    "Jueves": "-", "Viernes": "-", "Sabado": "-", "Domingo": "-"
+                }
+            """);
+
+            enviarPUT("/fichajes/" + uid + ".json", "{}");
+
+            System.out.println("✅ Empleado creado correctamente en Firebase.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ============================================================================
+    // OBRAS
+    // ============================================================================
 
     public static List<Obra> leerObras() {
         List<Obra> obras = new ArrayList<>();
@@ -119,162 +181,14 @@ public class FirebaseService {
 
             for (String id : data.keySet()) {
                 JsonObject obj = data.getAsJsonObject(id);
-                String nombre = obj.get("nombre").getAsString();
-                String estado = obj.get("estado").getAsString();
-                obras.add(new Obra(id, nombre, estado));
+                obras.add(new Obra(id, obj.get("nombre").getAsString(), obj.get("estado").getAsString()));
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return obras;
     }
 
-    
-    
-    
-    public static List<Fichaje> leerFichajes() {
-        List<Fichaje> lista = new ArrayList<>();
-
-        try {
-            URL url = new URL("https://gestorobras-db4ac-default-rtdb.europe-west1.firebasedatabase.app/fichajes.json");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
-            reader.close();
-
-            for (Map.Entry<String, JsonElement> empleadoEntry : root.entrySet()) {
-                String empleadoId = empleadoEntry.getKey();
-                JsonObject fichajesPorFecha = empleadoEntry.getValue().getAsJsonObject();
-
-                for (Map.Entry<String, JsonElement> fichaEntry : fichajesPorFecha.entrySet()) {
-                    JsonObject ficha = fichaEntry.getValue().getAsJsonObject();
-                    String obraId = ficha.get("obraId").getAsString();
-                    String fecha = ficha.get("fecha").getAsString();
-                    String horaEntrada = ficha.get("horaEntrada").getAsString();
-                    String horaSalida = ficha.has("horaSalida") ? ficha.get("horaSalida").getAsString() : "";
-                    boolean fichadoTarde = ficha.get("fichadoTarde").getAsBoolean();
-
-                    lista.add(new Fichaje(empleadoId, obraId, horaEntrada, horaSalida, fichadoTarde, fecha));
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return lista;
-    }
-    
-    public static void guardarObraEnFirebase(Obra obra) {
-        try {
-            URL url = new URL(BASE_URL + "/obras/" + obra.getId() + ".json");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("PUT");
-            conn.setRequestProperty("Content-Type", "application/json; utf-8");
-            conn.setDoOutput(true);
-
-            String json = String.format("{\"nombre\":\"%s\", \"estado\":\"%s\"}",
-                                        obra.getNombre(), obra.getEstado());
-
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = json.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-
-            conn.getResponseCode();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    public static void crearEmpleadoCompleto(String uid, String nombre, String cargo) {
-        try {
-            // 1. empleados/
-            String empleadoJson = String.format("{\"nombre\":\"%s\", \"cargo\":\"%s\"}", nombre, cargo);
-            enviarPUT("/empleados/" + uid + ".json", empleadoJson);
-
-            // 2. usuarios/uid/perfil
-            String perfilJson = """
-                {
-                    "direccion": "",
-                    "cp": "",
-                    "poblacion": "",
-                    "telefono": "",
-                    "foto": ""
-                }
-            """;
-            enviarPUT("/usuarios/" + uid + "/perfil.json", perfilJson);
-
-            // 3. horarios/
-            String horariosJson = """
-                {
-                    "Lunes": "-",
-                    "Martes": "-",
-                    "Miercoles": "-",
-                    "Jueves": "-",
-                    "Viernes": "-",
-                    "Sabado": "-",
-                    "Domingo": "-"
-                }
-            """;
-            enviarPUT("/horarios/" + uid + ".json", horariosJson);
-
-            // 4. fichajes/
-            enviarPUT("/fichajes/" + uid + ".json", "{}");
-
-            System.out.println("✅ Empleado creado correctamente en Firebase.");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Método auxiliar PUT genérico
-    private static void enviarPUT(String path, String jsonBody) throws Exception {
-        URL url = new URL(BASE_URL + path);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("PUT");
-        conn.setRequestProperty("Content-Type", "application/json; utf-8");
-        conn.setDoOutput(true);
-
-        try (OutputStream os = conn.getOutputStream()) {
-            byte[] input = jsonBody.getBytes("utf-8");
-            os.write(input, 0, input.length);
-        }
-
-        conn.getResponseCode();
-        conn.disconnect();
-    }
- // Obtener mapa UID → nombre
-    public static Map<String, String> obtenerEmpleados() {
-        Map<String, String> empleados = new HashMap<>();
-        try {
-            URL url = new URL(BASE_URL + "/empleados.json");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
-            reader.close();
-
-            for (String uid : data.keySet()) {
-                JsonObject obj = data.getAsJsonObject(uid);
-                String nombre = obj.get("nombre").getAsString();
-                empleados.put(uid, nombre);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return empleados;
-    }
-
-    // Obtener mapa obraId → nombre
     public static Map<String, String> obtenerObras() {
         Map<String, String> obras = new HashMap<>();
         try {
@@ -288,42 +202,74 @@ public class FirebaseService {
 
             for (String id : data.keySet()) {
                 JsonObject obj = data.getAsJsonObject(id);
-                String nombre = obj.get("nombre").getAsString();
-                obras.put(id, nombre);
+                obras.put(id, obj.get("nombre").getAsString());
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return obras;
     }
 
-    // Asignar obra a un empleado (guardado en /asignaciones/)
-    public static void asignarObraAEmpleado(String uid, String obraId) {
+    public static void guardarObraEnFirebase(Obra obra) {
         try {
-            String json = "\"" + obraId + "\"";
-            URL url = new URL(BASE_URL + "/asignaciones/" + uid + ".json");
+            URL url = new URL(BASE_URL + "/obras/" + obra.getId() + ".json");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("PUT");
             conn.setRequestProperty("Content-Type", "application/json; utf-8");
             conn.setDoOutput(true);
 
+            String json = String.format("{\"nombre\":\"%s\", \"estado\":\"%s\"}", obra.getNombre(), obra.getEstado());
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(json.getBytes("utf-8"));
             }
 
             conn.getResponseCode();
-            conn.disconnect();
-
-            System.out.println("✅ Obra asignada a empleado: " + uid + " → " + obraId);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // Obtener horarios semanales desde /horarios/uid/
+    // ============================================================================
+    // FICHAJES
+    // ============================================================================
+
+    public static List<Fichaje> leerFichajes() {
+        List<Fichaje> lista = new ArrayList<>();
+        try {
+            URL url = new URL(BASE_URL + "/fichajes.json");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
+            reader.close();
+
+            for (Map.Entry<String, JsonElement> empleadoEntry : root.entrySet()) {
+                String empleadoId = empleadoEntry.getKey();
+                JsonObject fichajesPorFecha = empleadoEntry.getValue().getAsJsonObject();
+
+                for (Map.Entry<String, JsonElement> fichaEntry : fichajesPorFecha.entrySet()) {
+                    JsonObject ficha = fichaEntry.getValue().getAsJsonObject();
+                    lista.add(new Fichaje(
+                        empleadoId,
+                        ficha.get("obraId").getAsString(),
+                        ficha.get("horaEntrada").getAsString(),
+                        ficha.has("horaSalida") ? ficha.get("horaSalida").getAsString() : "",
+                        ficha.get("fichadoTarde").getAsBoolean(),
+                        ficha.get("fecha").getAsString()
+                    ));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
+
+    // ============================================================================
+    // HORARIOS
+    // ============================================================================
+
     public static Map<String, String> obtenerHorariosPorUID(String uid) {
         Map<String, String> horarios = new HashMap<>();
         try {
@@ -338,13 +284,16 @@ public class FirebaseService {
             for (Map.Entry<String, JsonElement> entry : data.entrySet()) {
                 horarios.put(entry.getKey(), entry.getValue().getAsString());
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return horarios;
     }
+
+    // ============================================================================
+    // ASIGNACIONES
+    // ============================================================================
+
     public static Map<String, String> obtenerAsignaciones() {
         Map<String, String> asignaciones = new HashMap<>();
         try {
@@ -357,18 +306,53 @@ public class FirebaseService {
             reader.close();
 
             for (String uid : data.keySet()) {
-                String obraId = data.get(uid).getAsString();
-                asignaciones.put(uid, obraId);
+                asignaciones.put(uid, data.get(uid).getAsString());
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return asignaciones;
+    }
+
+    public static void asignarObraAEmpleado(String uid, String obraId) {
+        try {
+            URL url = new URL(BASE_URL + "/asignaciones/" + uid + ".json");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("PUT");
+            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setDoOutput(true);
+
+            String json = "\"" + obraId + "\"";
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(json.getBytes("utf-8"));
+            }
+
+            conn.getResponseCode();
+            conn.disconnect();
+
+            System.out.println("✅ Obra asignada a empleado: " + uid + " → " + obraId);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return asignaciones;
     }
 
-    
-    
-}
+    // ============================================================================
+    // UTILIDAD
+    // ============================================================================
 
+    private static void enviarPUT(String path, String jsonBody) throws Exception {
+        URL url = new URL(BASE_URL + path);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("PUT");
+        conn.setRequestProperty("Content-Type", "application/json; utf-8");
+        conn.setDoOutput(true);
+
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(jsonBody.getBytes("utf-8"));
+        }
+
+        conn.getResponseCode();
+        conn.disconnect();
+    }
+}
