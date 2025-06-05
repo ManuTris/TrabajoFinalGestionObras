@@ -20,7 +20,6 @@
 	<TableView fx:id="tablaObras" prefHeight="200"
 		prefWidth="300">
 		<columns>
-			<TableColumn fx:id="idColumna" text="ID" />
 			<TableColumn fx:id="nombreColumna" text="Nombre" />
 			<TableColumn fx:id="estadoColumna" text="Estado" />
 		</columns>

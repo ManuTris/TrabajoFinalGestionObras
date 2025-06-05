@@ -53,20 +53,15 @@ public class FirebaseService {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
-            BufferedReader reader = new BufferedReader(
-                new InputStreamReader(conn.getInputStream())
-            );
-
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
             reader.close();
-            System.out.println("Cargando empleados desde Firebase...");
-            System.out.println(data.toString());
 
-            for (String key : data.keySet()) {
-                JsonObject obj = data.getAsJsonObject(key);
+            for (String uid : data.keySet()) {
+                JsonObject obj = data.getAsJsonObject(uid);
                 String nombre = obj.get("nombre").getAsString();
                 String cargo = obj.get("cargo").getAsString();
-                empleados.add(new Empleado(0, nombre, cargo)); // ID 0 por ahora
+                empleados.add(new Empleado(uid, nombre, cargo));
             }
 
         } catch (Exception e) {
@@ -75,6 +70,7 @@ public class FirebaseService {
 
         return empleados;
     }
+
     public static boolean verificarCredenciales(String usuario, String contraseña) {
         try {
             @SuppressWarnings("deprecation")
@@ -353,6 +349,28 @@ public class FirebaseService {
         }
 
         return horarios;
+    }
+    public static Map<String, String> obtenerAsignaciones() {
+        Map<String, String> asignaciones = new HashMap<>();
+        try {
+            URL url = new URL(BASE_URL + "/asignaciones.json");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
+            reader.close();
+
+            for (String uid : data.keySet()) {
+                String obraId = data.get(uid).getAsString();
+                asignaciones.put(uid, obraId);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return asignaciones;
     }
 
     

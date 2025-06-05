@@ -5,31 +5,47 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TableColumn;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Empleado;
+import util.FirebaseService;
 
 import java.util.List;
+import java.util.Map;
 
 public class EmpleadosController {
 
     @FXML private TableView<Empleado> tablaEmpleados;
-    @FXML private TableColumn<Empleado, Integer> idColumna;
     @FXML private TableColumn<Empleado, String> nombreColumna;
     @FXML private TableColumn<Empleado, String> cargoColumna;
+    @FXML private TableColumn<Empleado, String> obraColumna;
+
+    private Map<String, String> asignaciones; // UID → obraId
+    private Map<String, String> obras;        // obraId → nombre de obra
 
     @FXML
     public void initialize() {
-        // Configurar columnas (los nombres deben coincidir con los getters del modelo)
-        idColumna.setCellValueFactory(new PropertyValueFactory<>("id"));
+        // Configurar columnas visibles
         nombreColumna.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         cargoColumna.setCellValueFactory(new PropertyValueFactory<>("cargo"));
 
-        // Cargar datos desde Firebase
-        List<Empleado> lista = util.FirebaseService.leerEmpleados();
+        // Cargar asignaciones y obras desde Firebase
+        asignaciones = FirebaseService.obtenerAsignaciones();
+        obras = FirebaseService.obtenerObras();
+
+        // Configurar columna para mostrar la obra asignada
+        obraColumna.setCellValueFactory(cellData -> {
+            Empleado emp = cellData.getValue();
+            String uid = emp.getId();
+            String obraId = asignaciones.get(uid);
+            String nombreObra = obras.getOrDefault(obraId, "Sin asignar");
+            return new javafx.beans.property.SimpleStringProperty(nombreObra);
+        });
+
+        // Cargar empleados desde Firebase
+        List<Empleado> lista = FirebaseService.leerEmpleados();
         ObservableList<Empleado> empleados = FXCollections.observableArrayList(lista);
         tablaEmpleados.setItems(empleados);
     }
