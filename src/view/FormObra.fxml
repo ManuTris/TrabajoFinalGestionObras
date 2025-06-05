@@ -5,7 +5,9 @@
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="controller.FormObraController"
-      alignment="CENTER" spacing="10" style="-fx-padding: 20;">
+      alignment="CENTER" spacing="10" style="-fx-padding: 20;"
+      stylesheets="@/view/style.css">
+      
     
     <Label text="Agregar Nueva Obra" style="-fx-font-size: 20px;"/>
     
