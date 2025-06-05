@@ -46,5 +46,11 @@ public class MainController {
     private void loadHorarios() {
         cargarVista("/view/HorariosView.fxml");
     }
+    
+    @FXML
+    private void loadAsignarObras() {
+        cargarVista("/view/AsignarObrasView.fxml");
+    }
+
 
 }

@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -257,5 +258,104 @@ public class FirebaseService {
         conn.getResponseCode();
         conn.disconnect();
     }
+ // Obtener mapa UID → nombre
+    public static Map<String, String> obtenerEmpleados() {
+        Map<String, String> empleados = new HashMap<>();
+        try {
+            URL url = new URL(BASE_URL + "/empleados.json");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
+            reader.close();
+
+            for (String uid : data.keySet()) {
+                JsonObject obj = data.getAsJsonObject(uid);
+                String nombre = obj.get("nombre").getAsString();
+                empleados.put(uid, nombre);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return empleados;
+    }
+
+    // Obtener mapa obraId → nombre
+    public static Map<String, String> obtenerObras() {
+        Map<String, String> obras = new HashMap<>();
+        try {
+            URL url = new URL(BASE_URL + "/obras.json");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
+            reader.close();
+
+            for (String id : data.keySet()) {
+                JsonObject obj = data.getAsJsonObject(id);
+                String nombre = obj.get("nombre").getAsString();
+                obras.put(id, nombre);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return obras;
+    }
+
+    // Asignar obra a un empleado (guardado en /asignaciones/)
+    public static void asignarObraAEmpleado(String uid, String obraId) {
+        try {
+            String json = "\"" + obraId + "\"";
+            URL url = new URL(BASE_URL + "/asignaciones/" + uid + ".json");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("PUT");
+            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setDoOutput(true);
+
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(json.getBytes("utf-8"));
+            }
+
+            conn.getResponseCode();
+            conn.disconnect();
+
+            System.out.println("✅ Obra asignada a empleado: " + uid + " → " + obraId);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Obtener horarios semanales desde /horarios/uid/
+    public static Map<String, String> obtenerHorariosPorUID(String uid) {
+        Map<String, String> horarios = new HashMap<>();
+        try {
+            URL url = new URL(BASE_URL + "/horarios/" + uid + ".json");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
+            reader.close();
+
+            for (Map.Entry<String, JsonElement> entry : data.entrySet()) {
+                horarios.put(entry.getKey(), entry.getValue().getAsString());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return horarios;
+    }
+
+    
+    
 }
 

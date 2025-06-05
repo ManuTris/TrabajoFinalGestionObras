@@ -17,6 +17,7 @@
 			<Button text="Empleados" onAction="#loadEmpleados" />
 			<Button text="Obras" onAction="#loadObras" />
 			<Button text="Horarios" onAction="#loadHorarios"/>
+			<Button text="Asignar Obras" onAction="#loadAsignarObras"/>
 			<Button text="Perfil" onAction="#loadPerfil" />
 
 		
