@@ -108,26 +108,20 @@ public class FirebaseService {
 
     public static List<Obra> leerObras() {
         List<Obra> obras = new ArrayList<>();
-
         try {
             URL url = new URL(BASE_URL + "/obras.json");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
-            BufferedReader reader = new BufferedReader(
-                new InputStreamReader(conn.getInputStream())
-            );
-
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             JsonObject data = JsonParser.parseReader(reader).getAsJsonObject();
             reader.close();
-           
 
-
-            for (String key : data.keySet()) {
-                JsonObject obj = data.getAsJsonObject(key);
+            for (String id : data.keySet()) {
+                JsonObject obj = data.getAsJsonObject(id);
                 String nombre = obj.get("nombre").getAsString();
                 String estado = obj.get("estado").getAsString();
-                obras.add(new Obra(0, nombre, estado)); // ID 0 por ahora
+                obras.add(new Obra(id, nombre, estado));
             }
 
         } catch (Exception e) {
@@ -136,6 +130,7 @@ public class FirebaseService {
 
         return obras;
     }
+
     
     
     

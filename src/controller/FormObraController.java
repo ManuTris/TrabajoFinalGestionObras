@@ -3,9 +3,11 @@ package controller;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import model.Obra;
 import javafx.collections.ObservableList;
+import model.Obra;
 import util.FirebaseService;
+
+import java.util.UUID;
 
 public class FormObraController {
 
@@ -24,10 +26,11 @@ public class FormObraController {
         String estado = estadoField.getText();
 
         if (nombre != null && !nombre.isEmpty() && estado != null && !estado.isEmpty()) {
-            int nuevoId = (int) (Math.random() * 1000000); // generar ID único
+            String nuevoId = UUID.randomUUID().toString(); // ID único tipo String
             Obra nueva = new Obra(nuevoId, nombre, estado);
-            listaObras.add(nueva);
-            FirebaseService.guardarObraEnFirebase(nueva);
+
+            listaObras.add(nueva); // Añadir a la lista local
+            FirebaseService.guardarObraEnFirebase(nueva); // Guardar en Firebase
             cerrarVentana();
         }
     }

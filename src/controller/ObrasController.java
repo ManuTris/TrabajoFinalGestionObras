@@ -2,38 +2,88 @@ package controller;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.TableView;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.TableColumn;
-
-import java.util.List;
-
+import javafx.stage.Stage;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Stage;
+
 import model.Obra;
+import model.Empleado;
+import util.FirebaseService;
+
+import java.util.*;
 
 public class ObrasController {
 
     @FXML private TableView<Obra> tablaObras;
-    @FXML private TableColumn<Obra, Integer> idColumna;
     @FXML private TableColumn<Obra, String> nombreColumna;
     @FXML private TableColumn<Obra, String> estadoColumna;
+    @FXML private TableColumn<Obra, Void> empleadosColumna;
+
+    private Map<String, String> asignaciones;
+    private Map<String, Empleado> empleadosPorId;
 
     @FXML
     public void initialize() {
-        idColumna.setCellValueFactory(new PropertyValueFactory<>("id"));
         nombreColumna.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         estadoColumna.setCellValueFactory(new PropertyValueFactory<>("estado"));
 
-        List<Obra> lista = util.FirebaseService.leerObras();
-        ObservableList<Obra> obras = FXCollections.observableArrayList(lista);
-        tablaObras.setItems(obras);
+        cargarAsignacionesYEmpleados();
+        configurarColumnaEmpleados();
+        cargarObras();
     }
 
-    
+    private void cargarAsignacionesYEmpleados() {
+        asignaciones = FirebaseService.obtenerAsignaciones();
+
+        empleadosPorId = new HashMap<>();
+        for (Empleado emp : FirebaseService.leerEmpleados()) {
+            empleadosPorId.put(emp.getId(), emp);
+        }
+    }
+
+    private void configurarColumnaEmpleados() {
+        empleadosColumna.setCellFactory(param -> new TableCell<>() {
+            private final ComboBox<String> combo = new ComboBox<>();
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setGraphic(null);
+                    return;
+                }
+
+                Obra obra = getTableRow().getItem();
+                String obraId = obra.getId();
+
+                List<String> empleadosAsignados = new ArrayList<>();
+                for (Map.Entry<String, String> entry : asignaciones.entrySet()) {
+                    if (obraId.equals(entry.getValue())) {
+                        Empleado emp = empleadosPorId.get(entry.getKey());
+                        if (emp != null) {
+                            empleadosAsignados.add(emp.getNombre());
+                        }
+                    }
+                }
+
+                if (empleadosAsignados.isEmpty()) empleadosAsignados.add("Sin empleados");
+
+                combo.setItems(FXCollections.observableArrayList(empleadosAsignados));
+                combo.getSelectionModel().selectFirst();
+                setGraphic(combo);
+            }
+        });
+    }
+
+    private void cargarObras() {
+        List<Obra> lista = FirebaseService.leerObras();
+        tablaObras.setItems(FXCollections.observableArrayList(lista));
+    }
+
     @FXML
     private void abrirFormularioObra() {
         try {
@@ -52,5 +102,4 @@ public class ObrasController {
             e.printStackTrace();
         }
     }
-
 }
