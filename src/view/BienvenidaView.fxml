@@ -11,18 +11,18 @@
       style="-fx-padding: 40; -fx-background-color: white;">
 
   
-    <ImageView fitHeight="160" fitWidth="160">
+    <ImageView fitHeight="300" fitWidth="300">
         <image>
             <Image url="@images/logo.png"/>
         </image>
     </ImageView> 
 
     <Text text="¡Bienvenido al sistema de gestión de obras!"
-          style="-fx-font-size: 24px; -fx-fill: #2b6cb0; -fx-font-weight: bold;"/>
+          style="-fx-font-size: 40px; -fx-fill: #2b6cb0; -fx-font-weight: bold;"/>
 
     <Text text="Utiliza el menú lateral para acceder a los módulos disponibles:"
-          style="-fx-font-size: 16px;"/>
+          style="-fx-font-size: 36px;"/>
 
     <Text text="- Empleados, Obras, Fichajes, Horarios, Informes..."
-          style="-fx-font-size: 14px; -fx-fill: gray;"/>
+          style="-fx-font-size: 20px; -fx-fill: gray;"/>
 </VBox>
