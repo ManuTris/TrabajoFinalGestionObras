@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
 <?import javafx.geometry.Insets?>
 
 <VBox xmlns="http://javafx.com/javafx"
@@ -10,9 +11,18 @@
       spacing="20" alignment="CENTER"
       style="-fx-padding: 40; -fx-background-color: #f9f9f9;">
 
+    <!-- Título -->
     <Label text="Perfil del Administrador"
            style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
 
+    <!-- Foto de perfil simulada -->
+    <Circle fx:id="circleFoto"
+            radius="40"
+            fill="LIGHTGRAY"
+            stroke="GRAY"
+            strokeWidth="2" />
+
+    <!-- Datos del perfil en cuadrícula -->
     <GridPane hgap="10" vgap="10">
         <Label text="Usuario:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
         <Label fx:id="usuarioLabel" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
@@ -24,6 +34,8 @@
         <Label text="01/01/2024" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
     </GridPane>
 
+    <!-- Botones -->
     <Button text="Cambiar contraseña" onAction="#cambiarContrasena"/>
     <Button text="Cerrar sesión" onAction="#cerrarSesion"/>
+
 </VBox>

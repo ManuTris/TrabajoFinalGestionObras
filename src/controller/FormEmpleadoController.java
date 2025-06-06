@@ -12,6 +12,8 @@ public class FormEmpleadoController {
 
     @FXML private TextField nombreField;
     @FXML private TextField cargoField;
+    @FXML private TextField dniField;
+
 
     private ObservableList<Empleado> listaEmpleados;
 
@@ -23,13 +25,15 @@ public class FormEmpleadoController {
     private void guardarEmpleado() {
         String nombre = nombreField.getText();
         String cargo = cargoField.getText();
+        String dni = dniField.getText();
 
-        if (!nombre.isEmpty() && !cargo.isEmpty()) {
+        if (!nombre.isEmpty() && !cargo.isEmpty() && !dni.isEmpty()) {
             String uid = UUID.randomUUID().toString(); // UID único compatible con Android
-            FirebaseService.crearEmpleadoCompleto(uid, nombre, cargo);
+            FirebaseService.crearEmpleadoCompleto(uid, nombre, cargo, dni);
             cerrarVentana();
         }
     }
+
 
     @FXML
     private void cerrarVentana() {

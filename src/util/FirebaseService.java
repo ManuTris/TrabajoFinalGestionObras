@@ -134,10 +134,10 @@ public class FirebaseService {
         return empleados;
     }
 
-    public static void crearEmpleadoCompleto(String uid, String nombre, String cargo) {
+    public static void crearEmpleadoCompleto(String uid, String nombre, String cargo, String dni) {
         try {
             enviarPUT("/empleados/" + uid + ".json",
-                    String.format("{\"nombre\":\"%s\", \"cargo\":\"%s\"}", nombre, cargo));
+                    String.format("{\"nombre\":\"%s\", \"cargo\":\"%s\", \"dni\":\"%s\"}", nombre, cargo, dni));
 
             enviarPUT("/usuarios/" + uid + "/perfil.json", """
                 {
@@ -163,6 +163,7 @@ public class FirebaseService {
             e.printStackTrace();
         }
     }
+
 
     // ============================================================================
     // OBRAS
@@ -250,21 +251,27 @@ public class FirebaseService {
 
                 for (Map.Entry<String, JsonElement> fichaEntry : fichajesPorFecha.entrySet()) {
                     JsonObject ficha = fichaEntry.getValue().getAsJsonObject();
-                    lista.add(new Fichaje(
-                        empleadoId,
-                        ficha.get("obraId").getAsString(),
-                        ficha.get("horaEntrada").getAsString(),
-                        ficha.has("horaSalida") ? ficha.get("horaSalida").getAsString() : "",
-                        ficha.get("fichadoTarde").getAsBoolean(),
-                        ficha.get("fecha").getAsString()
-                    ));
+
+                    if (ficha.has("obraId") && ficha.has("horaEntrada") && ficha.has("fecha")) {
+                        String obraId = ficha.get("obraId").getAsString();
+                        String horaEntrada = ficha.get("horaEntrada").getAsString();
+                        String horaSalida = ficha.has("horaSalida") ? ficha.get("horaSalida").getAsString() : "";
+                        boolean fichadoTarde = ficha.has("fichadoTarde") && ficha.get("fichadoTarde").getAsBoolean();
+                        String fecha = ficha.get("fecha").getAsString();
+
+                        lista.add(new Fichaje(empleadoId, obraId, horaEntrada, horaSalida, fichadoTarde, fecha));
+                    }
                 }
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return lista;
     }
+
+
 
     // ============================================================================
     // HORARIOS

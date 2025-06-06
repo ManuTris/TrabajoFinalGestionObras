@@ -12,6 +12,7 @@
     <Label text="Nuevo Empleado" style="-fx-font-size: 16px;" />
     <TextField fx:id="nombreField" promptText="Nombre" />
     <TextField fx:id="cargoField" promptText="Cargo" />
+    <TextField fx:id="dniField" promptText="DNI" />
     <HBox spacing="10">
         <Button text="Guardar" onAction="#guardarEmpleado"/>
         <Button text="Cancelar" onAction="#cerrarVentana" styleClass="button-cancel"/>
