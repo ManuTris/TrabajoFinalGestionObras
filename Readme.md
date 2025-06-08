@@ -106,7 +106,7 @@ Agrega lo siguiente en la configuración de ejecución (Run Configuration):
  
  
  +------------------+          escritura / lectura          +--------------------+
-| App de Escritorio|  <----------------------------------> |    Firebase DB      |
+| App de Escritorio|  <---------------------------------->  |    Firebase DB     |
 |    (JavaFX)      |                                        | (Realtime Database)|
 +------------------+                                        +--------------------+
         ▲                                                         ▲
